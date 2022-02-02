@@ -1,24 +1,109 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import './App.css'
+import axios from 'axios'
+
+// Axios Config and URL
+const getUrl = 'http://localhost:5000/'
+const postUrl = 'http://localhost:5000/post'
+const editUrl = 'http://localhost:5000/update'
+const deleteUrl = 'http://localhost:5000/delete'
+const config = {
+  headers: {
+      'content-type': 'multipart/form-data'
+  }
+}
 
 function App() {
+  const [productData, setProductData] = useState<IProductData[]>([])
+  const [productName, setProductName] = useState<string>('')
+  const [selectedProduct, setSelectedProduct] = useState<IProductData>({name: '', createdAt: '', id: 0})
+  const [mode, setMode] = useState<IMode>('create')
+  type IMode = 'edit' | 'create'
+  useEffect(() => {
+    fetchData()
+  }, [])
+  const fetchData = () => {
+    axios({
+      method: 'GET',
+      url: getUrl,
+    }).then(res => setProductData(res.data.data))
+  }
+  const postData = () => {
+    const form = new FormData()
+    form.append('name', productName)
+    
+    axios.post(postUrl, form, config)
+      .then(() => {
+        alert('OK')
+        fetchData()
+      })
+      .catch(err => alert(err))
+  }
+
+  const updateData = () => {
+    const form = new FormData()
+    form.append("name", productName)
+    form.append("id", String(selectedProduct.id))
+    axios.put(editUrl, form, config)
+      .then(() => {
+        alert("SUCCESS UPDATE DATA")
+        fetchData()
+        setMode('create')
+      })
+      .catch(err => alert(err))
+  }
+
+  const deleteData = (id: number) => {
+    const param = `${deleteUrl}?id=${id}`
+    axios.delete(param, config)
+      .then(() => {
+        alert("SUCCESS DELETE DATA")
+        fetchData()
+      })
+      .catch(err => alert(err))
+  }
+  type IProductData = {
+    createdAt: string
+    name: string
+    id: number
+  }
+
+  const onClickEdit = (product: IProductData) => {
+    setSelectedProduct(product)
+    setMode('edit')
+  }
+  const onClickSubmit = () => {
+    switch (mode) {
+      case 'create':
+        postData()
+        break
+      case 'edit':
+        updateData()
+        break
+    }
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+      <div style={{ flex: 1, flexDirection: 'column', display: 'flex' }}>
+        {mode === 'create' ? 'Input New Product' : `Update value of ${selectedProduct.name}` }
+        <input onChange={e => setProductName(e.target.value)} placeholder={'Input Product Name'} defaultValue={selectedProduct.name}/>
+        <button onClick={() => onClickSubmit()}>
+          Submit
+        </button>
+      </div>
+      <div style={{ flex: 2 }}>
+        {productData.map((e: IProductData) => {
+          return (
+            <div key={e.id} style={{ display: 'flex', flexDirection: 'row' }}>
+              <text>
+                {e.name}
+              </text>
+              <button onClick={() => onClickEdit(e)}>edit</button>
+              <button onClick={() => deleteData(e.id)}>delete</button>
+            </div>
+          )
+        })}
+      </div>
     </div>
   );
 }
