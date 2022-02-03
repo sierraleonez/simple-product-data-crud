@@ -72,6 +72,8 @@ function App() {
     setSelectedProduct(product)
     setMode('edit')
   }
+
+  
   const onClickSubmit = () => {
     switch (mode) {
       case 'create':
@@ -83,23 +85,29 @@ function App() {
     }
   }
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-      <div style={{ flex: 1, flexDirection: 'column', display: 'flex' }}>
-        {mode === 'create' ? 'Input New Product' : `Update value of ${selectedProduct.name}` }
-        <input onChange={e => setProductName(e.target.value)} placeholder={'Input Product Name'} defaultValue={selectedProduct.name}/>
-        <button onClick={() => onClickSubmit()}>
+    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flex: 1, height: '100%' }}>
+      <div style={{ flex: 1, flexDirection: 'column', display: 'flex', alignItems: 'center' }}>
+        <text>
+          {mode === 'create' ? 'Input New Product' : `Update value of ${selectedProduct.name}` }
+        </text>
+        <input onChange={e => setProductName(e.target.value)} placeholder={'Input Product Name'} defaultValue={selectedProduct.name} className={'textInput'}/>
+        <button className={'button'} onClick={() => onClickSubmit()}>
           Submit
         </button>
       </div>
-      <div style={{ flex: 2 }}>
+      <div style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         {productData.map((e: IProductData) => {
           return (
-            <div key={e.id} style={{ display: 'flex', flexDirection: 'row' }}>
+            <div key={e.id} style={{ display: 'flex', flexDirection: 'row', padding: 10, border: 'solid 1px black', alignItems: 'center', justifyContent: 'space-between' }}>
               <text>
                 {e.name}
               </text>
-              <button onClick={() => onClickEdit(e)}>edit</button>
-              <button onClick={() => deleteData(e.id)}>delete</button>
+              <div>
+                <button className={'button'} onClick={() => onClickEdit(e)}>Edit</button>
+                <button className={'button'} onClick={() => deleteData(e.id)} style={{ marginLeft: 12 }}>
+                  Delete
+                </button>
+              </div>
             </div>
           )
         })}
